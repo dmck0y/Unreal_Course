@@ -38,12 +38,15 @@ public:
     bool IsGameWon() const;
     EWordStatus IsValidGuess(FString) const;
     
-    FBullCowCount SubmitGuess(FString);
+    FBullCowCount SubmitValidGuess(FString);
     FBullCowGame();
     void Reset();
     
 private:
-    int32 MyMaxTries;
+    bool IsIsogram(FString) const;
+    bool IsLowercase(FString) const;
+    
     int32 MyCurrentTry;
     FString MyHiddenWord;
+    bool bGameWon;
 };

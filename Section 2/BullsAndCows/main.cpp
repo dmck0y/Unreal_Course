@@ -5,7 +5,6 @@
 //  Created by David Mckoy on 2016-08-21.
 //  Copyright © 2016 David Mckoy. All rights reserved.
 //
-
 #include <iostream>
 #include "FBullCowGame.hpp"
 
@@ -15,6 +14,7 @@ using int32 = int;
 void printIntro();
 void playGame();
 bool askToPlayAgain();
+void printGameSummary();
 FText getValidGuess();
 
 FBullCowGame BCGame;
@@ -40,13 +40,15 @@ void playGame() {
     BCGame.Reset();
     int32 MaxTries = BCGame.GetMaxTries();
     
-    for (int32 count = 0; count < MaxTries; count++) {
+    while (!BCGame.IsGameWon() && BCGame.GetCurrentTry() <= MaxTries) {
         FText Guess = getValidGuess();
         
-        FBullCowCount BullCowCount = BCGame.SubmitGuess(Guess);
+        FBullCowCount BullCowCount = BCGame.SubmitValidGuess(Guess);
         std::cout << "Bulls = " << BullCowCount.Bulls;
         std::cout << ". Cows = " << BullCowCount.Cows << "\n\n";
     }
+    
+    printGameSummary();
 }
 
 FText getValidGuess() {
@@ -55,27 +57,26 @@ FText getValidGuess() {
     
     do {
         int32 currentTry = BCGame.GetCurrentTry();
-        std::cout << "Try " << currentTry << ". Enter your guess: ";
+        std::cout << "Try " << currentTry << " of " << BCGame.GetMaxTries() << ". Enter your guess: ";
         std::getline(std::cin, Guess);
         
         Status = BCGame.IsValidGuess(Guess);
         switch (Status) {
             case EWordStatus::Wrong_Length:
-                std::cout << "Please enter a " << BCGame.GetHiddenWordLen() << " lettered word.\n";
+                std::cout << "Please enter a " << BCGame.GetHiddenWordLen() << " lettered word.\n\n";
                 break;
                 
             case EWordStatus::Not_Lowercase:
-                std::cout << "Please use all lowercse characters.\n";
+                std::cout << "Please use all lowercse characters.\n\n";
                 break;
             
             case EWordStatus::Not_Isogram:
-                std::cout << "Please enter a word without repeating letters.\n";
+                std::cout << "Please enter a word without repeating letters.\n\n";
                 break;
             
             default:
-                return Guess;
+                break;
         }
-        std::cout << std::endl;
     } while(Status != EWordStatus::OK);
     
     return Guess;
@@ -88,4 +89,12 @@ bool askToPlayAgain() {
     std::getline(std::cin, res);
     
     return (res[0] == 'y') || (res[0] == 'Y');
+}
+
+void printGameSummary() {
+    if (BCGame.IsGameWon()) {
+        std::cout << "YOU WIN!!! - ";
+    } else {
+        std::cout << "Better Luck Next Time! - ";
+    }
 }
